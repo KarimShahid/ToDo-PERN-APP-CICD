@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:15
+    container_name: todo-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 9999
+      POSTGRES_DB: store
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d store"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - todo-network
+
+  backend:
+    image: karimshahid/todo-app-server:latest
+    container_name: todo-app-server
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      environment:
+        PORT: 5001
+        DB_HOST: db
+        DB_PORT: 5432
+        DB_USER: admin
+        DB_PASSWORD: 9999
+        DB_NAME: store
+        JWT_SECRET: 7d6f6832d1a286d2e338aa8904bd9c50ec6f6e4561d32d5d9c125100dd6e6b2f
+    ports:
+      - "5001:5001"
+    networks:
+      - todo-network
+
+  frontend:
+    image: karimshahid/todo-app-client:latest
+    container_name: todo-app-client
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - 80:80
+    networks:
+      - todo-network
+
+volumes:
+  pgdata:
+
+networks:
+  todo-network:
+    driver: bridge

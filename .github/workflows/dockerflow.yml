@@ -1,0 +1,74 @@
+name: Deploying PERN todo app in my EC2.
+
+# Manual trigger
+on: 
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: "Build Docker Image and Push to Docker Hub"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "Checkout Code"
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+
+    - name: Build and push backend image
+      run: |
+        docker build -t karimshahid/todo-app-server:latest ./server
+        docker push karimshahid/todo-app-server:latest
+
+    - name: Build and push frontend image
+      run: |
+        docker build \
+        --build-arg VITE_API_URL=http://100.49.169.251:5001 \
+        -t karimshahid/todo-app-client:latest ./client
+        docker push karimshahid/todo-app-client:latest
+      
+  deploy-in-ec2:
+    name: "Docker Compose Up in ec2"
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    env:
+     SERVER_IP: ${{ vars.SERVER_IP }}
+    
+    steps: 
+    - name: "Configure SSH"
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+        cat ~/.ssh/config
+        touch ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
+
+    - name: "SSH key access"
+      run : |
+        touch mykey.pem
+        echo $SSH_KEY64 | base64 -d > mykey.pem
+        chmod 400 mykey.pem
+        ssh-keygen -R $SERVER_IP 
+      env:
+        SSH_KEY64: ${{ secrets.SSH_KEY64 }}
+
+    - name: Copy Docker Compose Prod File to EC2
+      run: |
+        scp -i mykey.pem docker-compose-prod.yml ec2-user@$SERVER_IP:~/todo-app/docker-compose.yml
+
+    - name: "Run Docker Image"
+      run: |
+        ssh -t ec2-user@$SERVER_IP -i mykey.pem << 'EOF'
+          cd ~/todo-app
+          
+          docker compose pull
+          docker compose up -d
+        EOF
