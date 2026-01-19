@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 9999
+      POSTGRES_DB: store
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./server/database.sql:/docker-entrypoint-initdb.d/init.sql 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d store"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - todo-network
+
+
+  backend:
+    build: ./server
+    image: karimshahid/todo-app-server:latest
+    platform: linux/amd64
+    container_name: todo-app-server
+    env_file:
+    - ./server/.env
+    ports:
+      - 5001:5001
+    restart: unless-stopped
+    depends_on: 
+      db:
+        condition: service_healthy
+    networks:
+      - todo-network
+
+  frontend:
+    build: 
+      context: ./client
+      args:
+        REACT_APP_API_URL: http://localhost:5001
+    image: karimshahid/todo-app-client:latest
+    platform: linux/amd64
+    container_name: todo-app-client
+    ports:
+      - 80:80
+    restart: unless-stopped 
+    depends_on:
+      - backend
+    networks:
+      - todo-network
+
+volumes:
+  pgdata:
+
+networks:
+  todo-network:
+    driver: bridge

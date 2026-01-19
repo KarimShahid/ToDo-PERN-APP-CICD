@@ -1,0 +1,81 @@
+# ============================================
+# .gitignore - Place in project root
+# ============================================
+
+# Dependencies
+node_modules/
+server/node_modules/
+client/node_modules/
+package-lock.json
+server/package-lock.json
+client/package-lock.json
+
+# Environment Variables (IMPORTANT - Contains secrets!)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+server/.env
+server/.env.local
+client/.env
+client/.env.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Build Output
+client/build/
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Docker (Optional - some people commit these)
+# Uncomment if you don't want to track Docker volumes
+# docker-compose.override.yml
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Misc
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
