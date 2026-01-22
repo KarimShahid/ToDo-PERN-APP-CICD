@@ -1,6 +1,6 @@
 # frontend/Dockerfile
 ################### BUILD STAGE ###################
-FROM node:20-alpine AS build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install deps as root (default)
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy rest of the code
 COPY . .
