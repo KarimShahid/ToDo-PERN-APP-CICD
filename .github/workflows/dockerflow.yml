@@ -82,7 +82,7 @@ jobs:
 
     - name: "Run Docker Image"
       run: |
-        ssh -t ec2-ubuntu@$SERVER_IP -i mykey.pem << 'EOF'
+        ssh -t ubuntu@$SERVER_IP -i mykey.pem << 'EOF'
           cd ~/todo-app/server
           docker compose pull
           docker compose up -d
