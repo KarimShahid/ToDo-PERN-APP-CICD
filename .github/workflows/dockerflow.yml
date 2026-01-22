@@ -73,7 +73,7 @@ jobs:
 
     - name: Copy Docker Compose Prod File to EC2
       run: |
-        scp -i mykey.pem ./docker-compose-prod.yml ubunutu@$SERVER_IP:~/todo-app/docker-compose.yml
+        scp -i mykey.pem ./docker-compose-prod.yml ubuntu@$SERVER_IP:~/todo-app/docker-compose.yml
 
     - name: Copy database.sql to EC2
       run: |
