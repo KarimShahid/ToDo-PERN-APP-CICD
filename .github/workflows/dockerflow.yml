@@ -1,8 +1,14 @@
 name: Deploying PERN todo app in my EC2.
 
 # Manual trigger
+# on: 
+#   workflow_dispatch:
+
+# Auto Run on Push
 on: 
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-push:
@@ -67,11 +73,11 @@ jobs:
 
     - name: Copy Docker Compose Prod File to EC2
       run: |
-        scp -i mykey.pem ./docker-compose-prod.yml ec2-user@$SERVER_IP:~/todo-app/docker-compose.yml
+        scp -i mykey.pem ./docker-compose-prod.yml ubunutu@$SERVER_IP:~/todo-app/docker-compose.yml
 
     - name: Copy database.sql to EC2
       run: |
-        scp -i mykey.pem ./server/database.sql ec2-user@$SERVER_IP:~/todo-app/server/database.sql
+        scp -i mykey.pem ./server/database.sql ubuntu@$SERVER_IP:~/todo-app/server/database.sql
 
     - name: "Run Docker Image"
       run: |
