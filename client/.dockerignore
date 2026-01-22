@@ -3,7 +3,6 @@ build/
 .env
 .git/
 Dockerfile
-.dockerignore
 README.md
 coverage/
 *.log
