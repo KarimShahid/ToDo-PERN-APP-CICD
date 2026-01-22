@@ -73,16 +73,11 @@ jobs:
 
     - name: "Create directory and copy files to EC2"
       run: |      
-        ssh -i mykey.pem ubuntu@$SERVER_IP "mkdir -p ~/todo-app"     
+        ssh -i mykey.pem ubuntu@$SERVER_IP "mkdir -p ~/todo-app/server"   
         
         ssh -i mykey.pem ubuntu@$SERVER_IP "sudo chown -R ubuntu:ubuntu ~/todo-app"       
-        
-        ssh -i mykey.pem ubuntu@$SERVER_IP "ls -ld ~/todo-app"
       
         scp -i mykey.pem docker-compose-prod.yml ubuntu@$SERVER_IP:~/todo-app/docker-compose.yml
-
-    - name: Copy database.sql to EC2
-      run: |
         scp -i mykey.pem ./server/database.sql ubuntu@$SERVER_IP:~/todo-app/server/database.sql
 
     - name: "Run Docker Image"
