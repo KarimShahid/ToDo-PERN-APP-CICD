@@ -71,12 +71,15 @@ jobs:
     - name: List repo files
       run: ls -la
 
-    - name: Copy Docker Compose Prod File to EC2
-      run: |
-        ssh -i mykey.pem ubuntu@$SERVER_IP "mkdir -p ~/todo-app && chmod 755 ~/todo-app"
+    - name: "Create directory and copy files to EC2"
+      run: |      
+        ssh -i mykey.pem ubuntu@$SERVER_IP "mkdir -p ~/todo-app"     
         
-        ssh -i mykey.pem ubuntu@$SERVER_IP "ls -ld ~/todo-app ~/todo-app/server" 
-        scp -i mykey.pem ./docker-compose-prod.yml ubuntu@$SERVER_IP:~/todo-app/docker-compose.yml
+        ssh -i mykey.pem ubuntu@$SERVER_IP "sudo chown -R ubuntu:ubuntu ~/todo-app"       
+        
+        ssh -i mykey.pem ubuntu@$SERVER_IP "ls -ld ~/todo-app"
+      
+        scp -i mykey.pem docker-compose-prod.yml ubuntu@$SERVER_IP:~/todo-app/docker-compose.yml
 
     - name: Copy database.sql to EC2
       run: |
