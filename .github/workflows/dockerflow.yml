@@ -83,7 +83,7 @@ jobs:
     - name: "Run Docker Image"
       run: |
         ssh -t ubuntu@$SERVER_IP -i mykey.pem << 'EOF'
-          cd ~/todo-app/server
+          cd ~/todo-app
           docker compose pull
           docker compose up -d
         EOF
