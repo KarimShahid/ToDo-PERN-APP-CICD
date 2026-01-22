@@ -30,7 +30,7 @@ jobs:
     - name: Build and push frontend image
       run: |
         docker build \
-        --build-arg VITE_API_URL=http://100.49.169.251:5001 \
+        --build-arg VITE_API_URL=http://54.159.153.185:5001 \
         -t karimshahid/todo-app-client:latest ./client
         docker push karimshahid/todo-app-client:latest
       
