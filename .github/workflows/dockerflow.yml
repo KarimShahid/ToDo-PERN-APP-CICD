@@ -64,6 +64,10 @@ jobs:
       run: |
         scp -i mykey.pem docker-compose-prod.yml ec2-user@$SERVER_IP:~/todo-app/docker-compose.yml
 
+    - name: Copy database.sql to EC2
+      run: |
+        scp -i mykey.pem ./server/database.sql ec2-user@$SERVER_IP:~/todo-app/server/database.sql
+
     - name: "Run Docker Image"
       run: |
         ssh -t ec2-user@$SERVER_IP -i mykey.pem << 'EOF'
