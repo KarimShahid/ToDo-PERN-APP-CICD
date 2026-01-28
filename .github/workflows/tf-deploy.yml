@@ -183,3 +183,4 @@ jobs:
             "aws_region": "${{ inputs.aws_region }}",
             "triggered_by": "${{ github.actor }}",
             "workflow_run_id": "${{ github.run_id }}"
+          }
