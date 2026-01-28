@@ -1,0 +1,42 @@
+name: 1. Terraform Backend Setup (S3)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Create Terraform Remote Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Terraform Init (Backend Setup)
+        working-directory: terraform/backend-setup
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform/backend-setup
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform/backend-setup
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: terraform/backend-setup
+        run: terraform apply -auto-approve

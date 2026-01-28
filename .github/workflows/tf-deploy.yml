@@ -1,0 +1,107 @@
+name: 2. Terraform Configuration EC2 
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment name
+        required: true
+        default: "prod-CICD"
+        type: string
+      
+      aws_region:
+        description: AWS Region
+        required: true
+        default: "us-east-1"
+        type: string
+      
+      vpc_cidr:
+        description: CIDR block for the VPC
+        required: true
+        default: 10.0.0.0/16
+        type: string
+
+      ssh_allowed_cidr:
+        description: CIDR allowed to SSH (e.g. 1.2.3.4/32)
+        required: true
+        default: 0.0.0.0/0
+        type: string
+
+      key_name:
+        description: EC2 key pair name (existing in AWS)
+        required: true
+        type: string
+        default: awsKeyPair
+
+      from_port:
+        description: Security group from port (8000)
+        required: true
+        type: string
+        default: "5001"
+
+      to_port:
+        description: Security group to port (8000)
+        required: true
+        type: string
+        default: "5001"
+
+      protocol:
+        description: Security group protocol (tcp/udp/icmp)
+        required: true
+        default: "tcp"
+        type: string
+
+
+
+jobs:
+  terraform:
+    name: Run terraform
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with: 
+        fetch-depth: 0
+    
+    - name: Set up TF
+      uses: hashicorp/setup-terraform@v3
+      with: 
+        terraform_version: 1.5.7
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with: 
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ inputs.aws_region }}
+
+    - name: TF Apply
+      working-directory: terraform
+      env: 
+        # Terraform variables
+        TF_VAR_environment: ${{ inputs.environment }}
+        TF_VAR_aws_region: ${{ inputs.aws_region }}
+        TF_VAR_vpc_cidr: ${{ inputs.vpc_cidr }}
+        TF_VAR_ssh_allowed_cidr: ${{ inputs.ssh_allowed_cidr }}
+
+        TF_VAR_from_port: ${{ inputs.from_port }}
+        TF_VAR_to_port: ${{ inputs.to_port }}
+        TF_VAR_protocol: ${{ inputs.protocol }}
+
+        TF_VAR_key_name: ${{ inputs.key_name }}
+
+          # Tags (map(string))
+        TF_VAR_tags: >
+          {
+            "Environment":"${{ inputs.environment }}",
+            "ManagedBy":"terraform"
+          }
+
+
+      run: |
+          terraform init
+          terraform validate
+          terraform plan
+          terraform apply -auto-approve
