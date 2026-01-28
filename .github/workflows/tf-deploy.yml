@@ -50,7 +50,11 @@ on:
         default: "tcp"
         type: string
 
-
+      trigger_deploy:
+        description: Automatically trigger Docker deployment after Terraform?
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   terraform:
