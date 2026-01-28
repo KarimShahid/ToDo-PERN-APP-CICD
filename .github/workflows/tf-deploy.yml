@@ -67,6 +67,7 @@ jobs:
       uses: hashicorp/setup-terraform@v3
       with: 
         terraform_version: 1.5.7
+        terraform_wrapper: false
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -113,14 +114,9 @@ jobs:
           echo "EC2_IP=$EC2_IP"
           echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
 
-    - name: Save EC2 IP as GitHub Variable
-      run: |
-        gh variable set SERVER_IP --body "${{ steps.get_eip.outputs.ec2_ip }}"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Trigger Docker Deploy
+    - name: Trigger Docker Deploy workflow
       uses: peter-evans/repository-dispatch@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         event-type: deploy-app
+        client-payload: '{"server_ip": "${{ steps.get_eip.outputs.ec2_ip }}"}'
