@@ -56,6 +56,7 @@ on:
         type: boolean
         default: true
 
+# Add permissions at workflow level
 permissions:
   contents: read
   actions: write
@@ -67,7 +68,7 @@ jobs:
     permissions:
       contents: read
       actions: write
-  
+    
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -78,6 +79,7 @@ jobs:
       uses: hashicorp/setup-terraform@v3
       with: 
         terraform_version: 1.5.7
+        terraform_wrapper: false
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -95,28 +97,23 @@ jobs:
         TF_VAR_aws_region: ${{ inputs.aws_region }}
         TF_VAR_vpc_cidr: ${{ inputs.vpc_cidr }}
         TF_VAR_ssh_allowed_cidr: ${{ inputs.ssh_allowed_cidr }}
-
         TF_VAR_from_port: ${{ inputs.from_port }}
         TF_VAR_to_port: ${{ inputs.to_port }}
         TF_VAR_protocol: ${{ inputs.protocol }}
-
         TF_VAR_key_name: ${{ inputs.key_name }}
-
-          # Tags (map(string))
+        # Tags (map(string))
         TF_VAR_tags: >
           {
             "ManagedBy":"terraform"
           }
-
-
       run: |
-       echo "Running Terraform with environment: $TF_VAR_environment"
-          terraform init
-          terraform validate
-          terraform plan
-          terraform apply -auto-approve
+        echo "Running Terraform with environment: $TF_VAR_environment"
+        terraform init
+        terraform validate
+        terraform plan
+        terraform apply -auto-approve
 
-    - name: Get EIP from Terraform Output
+    - name: Get EC2 IP from Terraform Output
       id: get_eip
       working-directory: terraform/
       run: |
@@ -124,25 +121,27 @@ jobs:
         echo "EC2_IP=$EC2_IP"
         echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
 
-    - name: Install GitHub CLI
+    # Alternative: Use REST API (no GitHub CLI needed, more reliable)
+    - name: Update GitHub Variable using REST API
       run: |
-        if ! command -v gh &> /dev/null; then
-          echo "Installing GitHub CLI..."
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt update
-          sudo apt install gh -y
+        RESPONSE=$(curl -s -w "\n%{http_code}" -L \
+          -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${{ github.repository }}/actions/variables/SERVER_IP \
+          -d "{\"name\":\"SERVER_IP\",\"value\":\"${{ steps.get_eip.outputs.ec2_ip }}\"}")
+        
+        HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+        BODY=$(echo "$RESPONSE" | sed '$d')
+        
+        if [ "$HTTP_CODE" -eq 204 ] || [ "$HTTP_CODE" -eq 200 ]; then
+          echo "✅ SERVER_IP variable updated to: ${{ steps.get_eip.outputs.ec2_ip }}"
         else
-          echo "GitHub CLI already installed"
+          echo "❌ Failed to update variable. HTTP Code: $HTTP_CODE"
+          echo "Response: $BODY"
+          exit 1
         fi
-
-    - name: Save EC2 IP as GitHub Variable
-      run: |
-        gh variable set SERVER_IP --body "${{ steps.get_eip.outputs.ec2_ip }}"
-        echo "✅ SERVER_IP variable updated to: ${{ steps.get_eip.outputs.ec2_ip }}"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Trigger Docker Deploy
       if: ${{ inputs.trigger_deploy == true }}
