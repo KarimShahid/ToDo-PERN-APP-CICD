@@ -1,14 +1,21 @@
 name: Deploying PERN todo app in my EC2.
 
 # Manual trigger
-on: 
-  workflow_dispatch:
+# on: 
+#   workflow_dispatch:
 
 # Auto Run on Push
 # on: 
 #   push:
 #     branches:
 #       - main
+
+
+# Daisy Chaining
+# Run this workflow only when a repository_dispatch event named deploy-app is received.
+on:
+  repository_dispatch:
+    types: [deploy-app]
 
 jobs:
   build-and-push:
@@ -36,7 +43,7 @@ jobs:
     - name: Build and push frontend image
       run: |
         docker build \
-        --build-arg REACT_APP_API_URL=http://44.212.224.120:5001 \
+        --build-arg REACT_APP_API_URL=http://${{ vars.SERVER_IP }}:5001 \
         -t karimshahid/todo-app-client:latest ./client
         docker push karimshahid/todo-app-client:latest
       

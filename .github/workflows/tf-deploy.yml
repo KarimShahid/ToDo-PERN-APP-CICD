@@ -104,3 +104,23 @@ jobs:
           terraform validate
           terraform plan
           terraform apply -auto-approve
+
+    - name: Get Elastic IP from Terraform Output
+      id: get_eip
+      working-directory: terraform/
+      run: |
+          EC2_IP=$(terraform output -raw ec2_public_ip)
+          echo "EC2_IP=$EC2_IP"
+          echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
+
+    - name: Save EC2 IP as GitHub Variable
+      run: |
+        gh variable set SERVER_IP --body "${{ steps.get_eip.outputs.ec2_ip }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Trigger Docker Deploy
+      uses: peter-evans/repository-dispatch@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        event-type: deploy-app
