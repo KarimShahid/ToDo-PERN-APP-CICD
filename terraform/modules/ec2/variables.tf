@@ -1,7 +1,6 @@
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "prod-Server"
 }
 
 
