@@ -13,7 +13,8 @@ name: 3. Deploying PERN todo app in my EC2.
 
 # Daisy Chaining
 # Run this workflow only when a repository_dispatch event named deploy-app is received.
-on:
+on: 
+  workflow_dispatch:
   repository_dispatch:
     types: [deploy-app]
 
@@ -22,7 +23,7 @@ jobs:
     name: Build Docker Image and Push to Docker Hub
     runs-on: ubuntu-latest
     env:
-        SERVER_IP: ${{ github.event.client_payload.server_ip }}
+        SERVER_IP: ${{ vars.SERVER_IP }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -53,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     env:
-      SERVER_IP: ${{ github.event.client_payload.server_ip }}
+      SERVER_IP: ${{ vars.SERVER_IP }}
     steps: 
     - name: "Checkout Code"           
       uses: actions/checkout@v4       

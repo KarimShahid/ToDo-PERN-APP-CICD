@@ -67,7 +67,6 @@ jobs:
       uses: hashicorp/setup-terraform@v3
       with: 
         terraform_version: 1.5.7
-        terraform_wrapper: false
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -106,17 +105,45 @@ jobs:
           terraform plan
           terraform apply -auto-approve
 
-    - name: Get Elastic IP from Terraform Output
+    - name: Get EIP from Terraform Output
       id: get_eip
       working-directory: terraform/
       run: |
-          EC2_IP=$(terraform output -raw ec2_public_ip)
-          echo "EC2_IP=$EC2_IP"
-          echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
+        EC2_IP=$(terraform output -raw ec2_public_ip)
+        echo "EC2_IP=$EC2_IP"
+        echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
 
-    - name: Trigger Docker Deploy workflow
+    - name: Install GitHub CLI
+      run: |
+        if ! command -v gh &> /dev/null; then
+          echo "Installing GitHub CLI..."
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
+        else
+          echo "GitHub CLI already installed"
+        fi
+
+    - name: Save EC2 IP as GitHub Variable
+      run: |
+        gh variable set SERVER_IP --body "${{ steps.get_eip.outputs.ec2_ip }}"
+        echo "✅ SERVER_IP variable updated to: ${{ steps.get_eip.outputs.ec2_ip }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Trigger Docker Deploy
+      if: ${{ inputs.trigger_deploy == true }}
       uses: peter-evans/repository-dispatch@v4
       with:
-        token: ${{ secrets.GH_PAT }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         event-type: deploy-app
-        client-payload: '{"server_ip": "${{ steps.get_eip.outputs.ec2_ip }}"}'
+        client-payload: |
+          {
+            "ec2_ip": "${{ steps.get_eip.outputs.ec2_ip }}",
+            "environment": "${{ inputs.environment }}",
+            "aws_region": "${{ inputs.aws_region }}",
+            "triggered_by": "${{ github.actor }}",
+            "workflow_run_id": "${{ github.run_id }}"
+          }
