@@ -117,6 +117,6 @@ jobs:
     - name: Trigger Docker Deploy workflow
       uses: peter-evans/repository-dispatch@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GH_PAT }}
         event-type: deploy-app
         client-payload: '{"server_ip": "${{ steps.get_eip.outputs.ec2_ip }}"}'
