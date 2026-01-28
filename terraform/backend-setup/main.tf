@@ -15,7 +15,7 @@ provider "aws" {
 
 # This creates the S3 bucket for Terraform state
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "todoapp-remote-backend-2026"
+  bucket = "todoapp-remotebackend-2026"
 
   tags = {
     Environment = "infrastructure"
