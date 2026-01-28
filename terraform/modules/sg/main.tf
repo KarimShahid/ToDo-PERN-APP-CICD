@@ -33,9 +33,9 @@ resource "aws_security_group" "this" {
 
   ingress {
     description = "Custom ingress rule"
-    from_port = var.from_port
-    to_port = var.to_port
-    protocol = var.protocol
+    from_port   = var.from_port
+    to_port     = var.to_port
+    protocol    = var.protocol
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -48,6 +48,7 @@ resource "aws_security_group" "this" {
 
   tags = merge(
     var.tags,
-    { Name = "${var.environment}-sg" }
+    { Name = "${var.environment}-sg"
+    Environment = var.environment }
   )
 }

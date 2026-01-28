@@ -9,8 +9,7 @@ variable "tags" {
   description = "Common resource tags"
   type        = map(string)
   default = {
-    Environment = var.environment
-    ManagedBy   = "terraform"
+    ManagedBy = "terraform"
   }
 }
 
@@ -22,7 +21,7 @@ variable "subnet_id" {
 
 
 variable "sg_id" {
-  type = string
+  type        = string
   description = "Security Group ID where the web server will be deployed"
 }
 

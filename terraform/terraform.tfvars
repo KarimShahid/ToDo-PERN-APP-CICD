@@ -15,9 +15,9 @@ tags = {
   ManagedBy   = "terraform"
 }
 
-to_port = 5001
+to_port   = 5001
 from_port = 5001
-protocol = "tcp"
+protocol  = "tcp"
 
 
 key_name = "awsKeyPair"

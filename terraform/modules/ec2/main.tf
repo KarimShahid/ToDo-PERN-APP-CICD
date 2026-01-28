@@ -26,13 +26,13 @@ resource "aws_instance" "this" {
   instance_type          = "t3.micro"
   subnet_id              = var.subnet_id
   vpc_security_group_ids = [var.sg_id]
-#   iam_instance_profile   = aws_iam_instance_profile.sonarqube.name
-  key_name               = var.key_name
+  #   iam_instance_profile   = aws_iam_instance_profile.sonarqube.name
+  key_name  = var.key_name
   user_data = var.user_data
 
   root_block_device {
-    volume_type = "gp3"
-    volume_size = 20
+    volume_type           = "gp3"
+    volume_size           = 20
     delete_on_termination = true
   }
 
@@ -42,12 +42,14 @@ resource "aws_instance" "this" {
 
   tags = merge(
     var.tags,
-    { Name = "${var.environment}-ec2" }
+    { Name        = "${var.environment}-ec2"
+      Environment = var.environment
+    }
   )
 }
 
 ######## Attaching EIP to the instance #############
 resource "aws_eip" "this" {
   instance = aws_instance.this.id
-  domain = "vpc"
+  domain   = "vpc"
 }

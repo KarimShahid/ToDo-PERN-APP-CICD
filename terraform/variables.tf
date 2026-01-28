@@ -20,8 +20,7 @@ variable "tags" {
   description = "Common resource tags"
   type        = map(string)
   default = {
-    Environment = var.environment
-    ManagedBy   = "terraform"
+    ManagedBy = "terraform"
   }
 }
 
