@@ -56,10 +56,17 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   terraform:
     name: Run terraform
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
   
     steps:
     - name: Checkout Code
