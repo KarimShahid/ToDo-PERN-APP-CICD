@@ -36,7 +36,7 @@ jobs:
     - name: Build and push frontend image
       run: |
         docker build \
-        --build-arg REACT_APP_API_URL=http://54.159.153.185:5001 \
+        --build-arg REACT_APP_API_URL=http://54.174.0.147:5001 \
         -t karimshahid/todo-app-client:latest ./client
         docker push karimshahid/todo-app-client:latest
       

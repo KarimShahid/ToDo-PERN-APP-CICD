@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "prod-CICD-Server"
+  # default     = "prod-CICD-Server"
 }
 
 variable "vpc_cidr" {

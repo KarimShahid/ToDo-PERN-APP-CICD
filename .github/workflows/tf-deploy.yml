@@ -6,7 +6,6 @@ on:
       environment:
         description: Environment name
         required: true
-        default: "prod-CICD"
         type: string
       
       aws_region:
