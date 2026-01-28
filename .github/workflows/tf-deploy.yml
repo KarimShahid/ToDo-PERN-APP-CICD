@@ -1,4 +1,4 @@
-name: '2. Terraform EC2 Deployment & Variable Update (Fine-Grained PAT)'
+name: '2. Terraform EC2 Deployment & Variable Update (Fine-Grained PAT)' 
 
 on:
   workflow_dispatch:
