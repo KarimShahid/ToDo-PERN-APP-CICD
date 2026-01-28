@@ -99,6 +99,7 @@ jobs:
 
 
       run: |
+       echo "Running Terraform with environment: $TF_VAR_environment"
           terraform init
           terraform validate
           terraform plan
