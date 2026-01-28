@@ -73,7 +73,7 @@ jobs:
 
     - name: "Create directory and copy files to EC2"
       run: |      
-        ssh -i mykey.pem ubuntu@$SERVER_IP "mkdir -p ~/todo-app/server"   
+        ssh -i mykey.pem ubuntu@$SERVER_IP "sudo mkdir -p ~/todo-app/server"   
         
         ssh -i mykey.pem ubuntu@$SERVER_IP "sudo chown -R ubuntu:ubuntu ~/todo-app"       
       
