@@ -176,11 +176,11 @@ jobs:
       with:
         token: ${{ secrets.GH_PAT }}
         event-type: deploy-app
-        client-payload: |
-          {
-            "ec2_ip": "${{ steps.get_eip.outputs.ec2_ip }}",
-            "environment": "${{ inputs.environment }}",
-            "aws_region": "${{ inputs.aws_region }}",
-            "triggered_by": "${{ github.actor }}",
-            "workflow_run_id": "${{ github.run_id }}"
-          }
+        # client-payload: |
+        #   {
+        #     "ec2_ip": "${{ steps.get_eip.outputs.ec2_ip }}",
+        #     "environment": "${{ inputs.environment }}",
+        #     "aws_region": "${{ inputs.aws_region }}",
+        #     "triggered_by": "${{ github.actor }}",
+        #     "workflow_run_id": "${{ github.run_id }}"
+        #   }

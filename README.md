@@ -1,174 +1,52 @@
-# Todo App Using PERN Stack
+# ToDo-PERN-APP-CICD
 
-This is a Todo application built using the **PERN stack**, which stands for **PostgreSQL**, **Express.js**, **React**, and **Node.js**. The application allows users to create, edit, and delete tasks in a todo list, with data stored in a PostgreSQL database and a RESTful API backend built with Node.js and Express.
+A **ToDo application** built with the **PERN stack** (PostgreSQL, Express, React, Node.js), fully **dockerized** and deployed on **AWS EC2** using **GitHub Actions** and **Terraform**.
 
-## Live Working
+---
 
-- Frontend: React (hosted on Vercel)
-- Backend: Node.js + Express (hosted on Render)
-- Database: PostgreSQL (hosted on Supabase)
-- Link: https://todo-vercel-frontend.vercel.app/
+## Project Overview
 
-## Table of Contents
+This project is a full-stack ToDo application with a **React frontend**, **Node.js/Express backend**, and **PostgreSQL database**. The app allows users to create, read, update, and delete tasks.
 
-- [Tech Stack](#tech-stack)
-- [Project Setup](#project-setup)
-- [Backend API](#backend-api)
-  - [Database](#database)
-  - [Express API](#express-api)
-- [Frontend (React)](#frontend-react)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+The project is designed with **modern DevOps practices**:
 
-## Tech Stack
+- The application is **fully containerized with Docker**, ensuring consistent environments for development and production.
+- **Terraform** is used to provision **AWS EC2 infrastructure** automatically.
+- **GitHub Actions workflows** manage CI/CD:
+  1. **Terraform Backend Setup Workflow**
+     - Creates the **S3 remote backend** for Terraform state management.
+  2. **Terraform Apply Workflow**
+     - Provisions the EC2 instance and networking resources.
+  3. **Application Deployment Workflow**
+     - Builds Docker images for frontend, backend, and database.
+     - Pushes images to a Docker registry.
+     - Pulls images and runs containers on the provisioned EC2 instance.
+  4. **Terraform Destroy Workflow**
+     - Tears down the EC2 infrastructure when no longer needed.
 
-This project uses the following technologies:
+This setup enables **fully automated deployment**, from infrastructure creation to application running on a live server, and ensures a **reproducible and clean environment**.
 
-- **Frontend**: React.js
-- **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL
-- **Styling**: Bootstrap for UI components and layout
+---
 
-## Project Setup
+## Key Features & Technologies
 
-To set up the project locally, follow the steps below:
+- **Frontend:** React.js  
+- **Backend:** Node.js, Express  
+- **Database:** PostgreSQL  
+- **Containerization:** Docker, Docker Compose  
+- **Infrastructure:** Terraform (AWS EC2, S3 backend)  
+- **CI/CD:** GitHub Actions pipelines for automated deployment and teardown
 
-1. **Clone the repository**:
+---
 
-    ```bash
-    git clone https://github.com/A-RYAN-1/Todo-App-Using-PERN-Stack-Development.git
-    cd Todo-App-Using-PERN-Stack-Development
-    ```
+## What’s Implemented
 
-2. **Set up the backend (Node.js + Express + PostgreSQL)**:
-   
-    1. Navigate to the `backend` directory:
-    
-        ```bash
-        cd backend
-        ```
+- **Dockerized frontend, backend, and database** for easy deployment and scaling.
+- **Terraform-managed AWS EC2 instance** creation and destruction.
+- **S3 backend setup** for Terraform state management using `tf-backend-setup.yml`.
+- **CI/CD automation:**
+  - Infrastructure provisioning (`terraform apply`).
+  - Docker build, push, and deployment to EC2.
+  - Infrastructure cleanup (`terraform destroy`).
+- **Environment-independent deployment**, allowing the same setup to run locally or in production.
 
-    2. Install dependencies:
-    
-        ```bash
-        npm install
-        ```
-
-    3. Configure the PostgreSQL database connection. Make sure you have PostgreSQL running locally and create a database named `store`.
-
-    4. Set up the environment variables (create a `.env` file in the `backend` folder):
-
-        ```
-        DB_USER=your_username
-        DB_PASSWORD=your_password
-        DB_HOST=localhost
-        DB_PORT=5432
-        DB_NAME=todos_db
-        ```
-
-    5. Run database migrations (using your preferred PostgreSQL migration strategy, or manually set up the tables based on the structure in `server.js`).
-
-    6. Start the backend server:
-
-        ```bash
-        npm start
-        ```
-
-3. **Set up the frontend (React)**:
-
-    1. Navigate to the `frontend` directory:
-    
-        ```bash
-        cd frontend
-        ```
-
-    2. Install dependencies:
-    
-        ```bash
-        npm install
-        ```
-
-    3. Start the frontend server:
-
-        ```bash
-        npm start
-        ```
-
-4. **Access the application**:
-
-    - The backend will run on `http://localhost:5000`.
-    - The frontend will run on `http://localhost:3000`.
-
-## Backend API
-
-The backend consists of a RESTful API built using **Express.js** and **Node.js**.
-
-### Database
-
-We use **PostgreSQL** to store the todo items. The database contains the following table:
-
-- **todos**:
-  - `todo_id`: Integer (Primary Key)
-  - `description`: String (Text)
-
-### Express API
-
-The backend API has the following routes:
-
-- **GET** `/todos`:
-    - Fetch all todos from the database.
-    - Returns a list of todo objects.
-
-- **POST** `/todos`:
-    - Create a new todo.
-    - Expects a `description` field in the request body.
-
-- **PUT** `/todos/:id`:
-    - Update the description of a specific todo by ID.
-    - Expects a `description` field in the request body.
-
-- **DELETE** `/todos/:id`:
-    - Delete a todo by ID.
-
-## Frontend (React)
-
-The frontend is built using **React** and provides an interface for the user to interact with the todo list. It has the following components:
-
-- **InputTodo**: A form for adding new todo items to the list.
-- **ListTodos**: Displays all the todos in a table format, allowing users to edit or delete them.
-- **EditTodo**: Allows users to edit the description of an existing todo item.
-
-### Key Features:
-
-1. **Adding Todos**: The user can input a description and click the "Add" button to save it in the database.
-2. **Editing Todos**: The user can edit the description of any existing todo by clicking the "Edit" button, which triggers a modal form.
-3. **Deleting Todos**: The user can delete any todo from the list, which will remove it from both the UI and the database.
-
-The frontend communicates with the backend through API calls (via **fetch**), sending HTTP requests to the server to interact with the database.
-
-### Styling
-
-The UI is styled using **Bootstrap**, which provides ready-to-use components for buttons, modals, and tables, making the interface responsive and user-friendly.
-
-## Usage
-
-1. Run the frontend and backend servers as mentioned in the Project Setup section.
-2. Open your browser and go to `http://localhost:3000` to access the Todo app.
-3. You can add new todos, edit existing todos, and delete todos from the list.
-
-## Contributing
-
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Open a pull request.
-
-## Project Demo
-
-https://github.com/user-attachments/assets/61315650-f34a-4dbd-98c7-b89fcf4b005d
-
-https://github.com/user-attachments/assets/0a05ea13-14de-4119-8e71-9bcb01c1c061
-
-https://github.com/user-attachments/assets/30fc534e-d343-44c7-98f8-acccd4de3a0a
